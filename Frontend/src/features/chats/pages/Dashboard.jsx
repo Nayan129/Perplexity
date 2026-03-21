@@ -7,8 +7,6 @@ const Dashboard = () => {
 
   const { user } = useSelector((state) => state.auth);
 
-  console.log(user);
-
   useEffect(() => {
     chat.initializeSocketConnection();
   }, []);

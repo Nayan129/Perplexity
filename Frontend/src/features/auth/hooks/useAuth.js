@@ -9,10 +9,12 @@ export function useAuth() {
     try {
       dispatch(setLoading(true));
       const data = await register({ email, username, password });
+      return data;
     } catch (error) {
       dispatch(
         setError(error.response?.data?.message || "Registration failed"),
       );
+      throw error;
     } finally {
       dispatch(setLoading(false));
     }
@@ -21,10 +23,17 @@ export function useAuth() {
   async function handleLogin({ email, password }) {
     try {
       dispatch(setLoading(true));
-      const data = await login({ email, password });
+
+      await login({ email, password });
+
+      const data = await getMe();
+
       dispatch(setUser(data.user));
+
+      return data;
     } catch (err) {
       dispatch(setError(err.response?.data?.message || "Login failed"));
+      throw err;
     } finally {
       dispatch(setLoading(false));
     }
@@ -36,9 +45,7 @@ export function useAuth() {
       const data = await getMe();
       dispatch(setUser(data.user));
     } catch (err) {
-      dispatch(
-        setError(err.response?.data?.message || "Failed to fetch user data"),
-      );
+      dispatch(dispatch(setUser(null)));
     } finally {
       dispatch(setLoading(false));
     }

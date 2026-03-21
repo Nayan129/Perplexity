@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router";
+import { Link, Navigate } from "react-router";
 import { useAuth } from "../hooks/useAuth.js";
 import { useSelector } from "react-redux";
 
@@ -12,7 +12,6 @@ const Login = () => {
 
   const { handleLogin } = useAuth();
 
-  const navigate = useNavigate();
 
   const submitForm = async (event) => {
     event.preventDefault();
@@ -22,8 +21,11 @@ const Login = () => {
       password,
     };
 
-    await handleLogin(payload);
-    navigate("/");
+    try {
+      await handleLogin(payload);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   if (!loading && user) {
