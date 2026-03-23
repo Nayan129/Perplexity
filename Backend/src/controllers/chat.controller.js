@@ -1,10 +1,12 @@
-import { response } from "express";
 import { generateResponse, generateChatTitle } from "../services/ai.service.js";
 import chatModel from "../model/chat.model.js";
 import messageModel from "../model/message.model.js";
 
 export async function sendMessage(req, res) {
-  const { message, chat: chatId } = req.body;
+  const { message } = req.body;
+
+  const text = message.message;
+  const chatId = message.chatId;
 
   let title = null,
     chat = null;
@@ -19,7 +21,7 @@ export async function sendMessage(req, res) {
 
   const userMessage = await messageModel.create({
     chat: chatId || chat._id,
-    content: message,
+    content: text,
     role: "user",
   });
 

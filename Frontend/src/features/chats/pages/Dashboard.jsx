@@ -1,182 +1,129 @@
+import React, { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { useSelector } from "react-redux";
 import { useChat } from "../hooks/useChat";
-import { useEffect, useState, useRef } from "react";
+import remarkGfm from "remark-gfm";
 
 const Dashboard = () => {
   const chat = useChat();
-  const { user } = useSelector((state) => state.auth);
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [chatHistory, setChatHistory] = useState([
-    { id: 1, title: "Chat title" },
-    { id: 2, title: "Chat title" },
-    { id: 3, title: "Chat title" },
-    { id: 4, title: "Chat title" },
-    { id: 5, title: "Chat title" },
-  ]);
-  const [activeChat, setActiveChat] = useState(null);
-  const messagesEndRef = useRef(null);
+  const [chatInput, setChatInput] = useState("");
+  const chats = useSelector((state) => state.chat.chats);
+  const currentChatId = useSelector((state) => state.chat.currentChatId);
 
   useEffect(() => {
     chat.initializeSocketConnection();
+    chat.handleGetChats();
   }, []);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  const handleSubmitMessage = (event) => {
+    event.preventDefault();
 
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    if (!message.trim()) return;
+    const trimmedMessage = chatInput.trim();
+    if (!trimmedMessage) {
+      return;
+    }
 
-    setMessages([...messages, { type: "user", content: message }]);
+    chat.handleSendMessage({ message: trimmedMessage, chatId: currentChatId });
+    setChatInput("");
+  };
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { type: "ai", content: "AI message response..." },
-      ]);
-    }, 1000);
-    setMessage("");
+  const openChat = (chatId) => {
+    chat.handleOpenChat(chatId, chats);
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#0a0a0a] text-white overflow-hidden">
-      <aside className="w-64 min-w-50 flex flex-col border-r border-gray-800/50 bg-[#0d0d0d]">
-        <div className="p-4 border-b border-gray-800/50">
-          <h1 className="text-lg font-semibold tracking-wide text-white/90">
+    <main className="min-h-screen w-full bg-[#07090f] p-3 text-white md:p-5">
+      <section className="mx-auto flex h-[calc(100vh-1.5rem)] w-full gap-4 rounded-3xl border   p-1 md:h-[calc(100vh-2.5rem)] md:gap-6 md:p-1 border-none">
+        <aside className="hidden h-full w-72 shrink-0 rounded-3xl border  bg-[#080b12] p-4 md:flex md:flex-col">
+          <h1 className="mb-5 text-3xl font-semibold tracking-tight">
             Perplexity
           </h1>
-        </div>
 
-        {/* Chat History */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-          {chatHistory.map((chatItem) => (
-            <button
-              key={chatItem.id}
-              onClick={() => setActiveChat(chatItem.id)}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ease-out cursor-pointer
-                ${
-                  activeChat === chatItem.id
-                    ? "bg-linear-to-r from-cyan-500/20 to-transparent border border-cyan-500/30 text-white"
-                    : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
+          <div className="space-y-2">
+            {Object.values(chats).map((chat, index) => (
+              <button
+                onClick={() => {
+                  openChat(chat.id);
+                }}
+                key={index}
+                type="button"
+                className="w-full cursor-pointer rounded-xl border border-white/60 bg-transparent px-3 py-2 text-left text-base font-medium text-white/90 transition hover:border-white hover:text-white"
+              >
+                {chat.title}
+              </button>
+            ))}
+          </div>
+        </aside>
+
+        <section className="relative max-w-3/5 mx-auto flex h-full min-w-0 flex-1 flex-col gap-4">
+          <div className="messages flex-1 space-y-3 overflow-y-auto pr-1 pb-30">
+            {chats[currentChatId]?.messages.map((message) => (
+              <div
+                key={message.id}
+                className={`max-w-[82%] w-fit rounded-2xl px-4 py-3 text-sm md:text-base ${
+                  message.role === "user"
+                    ? "ml-auto rounded-br-none bg-white/12 text-white"
+                    : "mr-auto border-none text-white/90"
                 }`}
-            >
-              <span className="block truncate">{chatItem.title}</span>
-            </button>
-          ))}
-        </nav>
-
-        {/* button for new chat */}
-        <div className="p-3 border-t border-gray-800/50">
-          <button className="w-full px-4 py-2.5 rounded-lg bg-linear-to-tr  hover:to-neutral-800  text-white text-sm font-medium transition-all duration-300 ease-out shadow-lg shadow-white-500/60 cursor-pointer">
-            + New Chat
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0">
-        <div className="flex-1 flex flex-col p-4 overflow-hidden">
-          {/* User Message */}
-          <div className="flex justify-end mb-4">
-            {messages
-              .filter((m) => m.type === "user")
-              .slice(-1)
-              .map((msg, idx) => (
-                <div
-                  key={idx}
-                  className="max-w-md px-4 py-3 mr-10 rounded-xl bg-gray-800/60 border border-gray-700/50 text-sm text-gray-200 backdrop-blur-sm"
-                >
-                  {msg.content}
-                </div>
-              )) || (
-              <div className="px-4 py-3 rounded-xl bg-gray-800/40 border border-gray-700/30 text-sm text-gray-500">
-                user message
-              </div>
-            )}
-          </div>
-
-          {/* AI Response  */}
-          <div className="flex-1 flex items-center justify-center p-4">
-            <div className="w-full max-w-360  h-full min-h-75 rounded-2xl  flex items-center justify-center overflow-y-auto">
-              {messages.filter((m) => m.type === "ai").length > 0 ? (
-                <div className="p-6 text-gray-300 text-sm leading-relaxed w-full">
-                  {
-                    messages.filter((m) => m.type === "ai").slice(-1)[0]
-                      ?.content
-                  }
-                </div>
-              ) : (
-                <p className="text-shadow-white text-4xl">
-                  Welcome To Perplexity AI 🤖
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Chat Input Area */}
-          <div className="mt-4">
-            <form onSubmit={handleSendMessage} className="relative">
-              <div className="rounded-xl border border-gray-700/50 bg-gray-900/50 backdrop-blur-sm overflow-hidden transition-all duration-300 focus-within:border-cyan-500/50 focus-within:shadow-lg focus-within:shadow-cyan-500/10">
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Chat input area"
-                  className="w-full px-4 py-4 bg-transparent text-white text-sm placeholder-gray-500 focus:outline-none"
-                />
-                <div className="flex items-center justify-between px-3 py-2 border-t border-gray-800/50">
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      className="p-2 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-colors duration-200"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={!message.trim()}
-                    className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-700 disabled:cursor-not-allowed text-white text-sm font-medium transition-all duration-200 disabled:opacity-50"
+              >
+                {message.role === "user" ? (
+                  <p>{message.content}</p>
+                ) : (
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => (
+                        <p className="mb-2 last:mb-0">{children}</p>
+                      ),
+                      ul: ({ children }) => (
+                        <ul className="mb-2 list-disc pl-5">{children}</ul>
+                      ),
+                      ol: ({ children }) => (
+                        <ol className="mb-2 list-decimal pl-5">{children}</ol>
+                      ),
+                      code: ({ children }) => (
+                        <code className="rounded bg-white/10 px-1 py-0.5">
+                          {children}
+                        </code>
+                      ),
+                      pre: ({ children }) => (
+                        <pre className="mb-2 overflow-x-auto rounded-xl bg-black/30 p-3">
+                          {children}
+                        </pre>
+                      ),
+                    }}
+                    remarkPlugins={[remarkGfm]}
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M14 5l7 7m0 0l-7 7m7-7H3"
-                      />
-                    </svg>
-                  </button>
-                </div>
+                    {message.content}
+                  </ReactMarkdown>
+                )}
               </div>
-            </form>
+            ))}
           </div>
-        </div>
-      </main>
 
-      {/* Glow Effects */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
-    </div>
+          <footer className="rounded-3xl w-full absolute bottom-2 border border-white/60 bg-[#080b12] p-4 md:p-5">
+            <form
+              onSubmit={handleSubmitMessage}
+              className="flex flex-col gap-3 md:flex-row"
+            >
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(event) => setChatInput(event.target.value)}
+                placeholder="Type your message..."
+                className="w-full rounded-2xl border border-white/50 bg-transparent px-4 py-3 text-lg text-white outline-none transition placeholder:text-white/45 focus:border-white/90"
+              />
+              <button
+                type="submit"
+                disabled={!chatInput.trim()}
+                className="rounded-2xl border border-white/60 px-6 py-3 text-lg font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Send
+              </button>
+            </form>
+          </footer>
+        </section>
+      </section>
+    </main>
   );
 };
 
