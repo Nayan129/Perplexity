@@ -30,7 +30,7 @@ const Dashboard = () => {
     if (!message.trim()) return;
 
     setMessages([...messages, { type: "user", content: message }]);
-    // Simulate AI response
+
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,
@@ -42,9 +42,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen w-full bg-[#0a0a0a] text-white overflow-hidden">
-      {/* Sidebar */}
       <aside className="w-64 min-w-50 flex flex-col border-r border-gray-800/50 bg-[#0d0d0d]">
-        {/* Logo */}
         <div className="p-4 border-b border-gray-800/50">
           <h1 className="text-lg font-semibold tracking-wide text-white/90">
             Perplexity
@@ -69,7 +67,7 @@ const Dashboard = () => {
           ))}
         </nav>
 
-        {/* New Chat Button */}
+        {/* button for new chat */}
         <div className="p-3 border-t border-gray-800/50">
           <button className="w-full px-4 py-2.5 rounded-lg bg-linear-to-tr  hover:to-neutral-800  text-white text-sm font-medium transition-all duration-300 ease-out shadow-lg shadow-white-500/60 cursor-pointer">
             + New Chat
@@ -79,9 +77,8 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
-        {/* Messages Area */}
         <div className="flex-1 flex flex-col p-4 overflow-hidden">
-          {/* User Message Area (Top Right) */}
+          {/* User Message */}
           <div className="flex justify-end mb-4">
             {messages
               .filter((m) => m.type === "user")
@@ -89,7 +86,7 @@ const Dashboard = () => {
               .map((msg, idx) => (
                 <div
                   key={idx}
-                  className="max-w-md px-4 py-3 rounded-xl bg-gray-800/60 border border-gray-700/50 text-sm text-gray-200 backdrop-blur-sm"
+                  className="max-w-md px-4 py-3 mr-10 rounded-xl bg-gray-800/60 border border-gray-700/50 text-sm text-gray-200 backdrop-blur-sm"
                 >
                   {msg.content}
                 </div>
@@ -100,9 +97,9 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* AI Response Area (Center) */}
+          {/* AI Response  */}
           <div className="flex-1 flex items-center justify-center p-4">
-            <div className="w-full max-w-full h-full min-h-75 rounded-2xl  flex items-center justify-center overflow-y-auto">
+            <div className="w-full max-w-360  h-full min-h-75 rounded-2xl  flex items-center justify-center overflow-y-auto">
               {messages.filter((m) => m.type === "ai").length > 0 ? (
                 <div className="p-6 text-gray-300 text-sm leading-relaxed w-full">
                   {
@@ -118,7 +115,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Chat Input Area (Bottom) */}
+          {/* Chat Input Area */}
           <div className="mt-4">
             <form onSubmit={handleSendMessage} className="relative">
               <div className="rounded-xl border border-gray-700/50 bg-gray-900/50 backdrop-blur-sm overflow-hidden transition-all duration-300 focus-within:border-cyan-500/50 focus-within:shadow-lg focus-within:shadow-cyan-500/10">
