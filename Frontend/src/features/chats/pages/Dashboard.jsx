@@ -4,9 +4,11 @@ import { useEffect, useState, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { logoutUser } from "../../auth/services/auth.api.js";
+import { useAuth } from "../../auth/hooks/useAuth.js";
 
 const Dashboard = () => {
   const chat = useChat();
+  const auth = useAuth();
 
   const [input, setInput] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -23,7 +25,7 @@ const Dashboard = () => {
   const chats = useSelector((state) => state.chat.chats);
   const currentChatId = useSelector((state) => state.chat.currentChatId);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     chat.initializeSocketConnection();
@@ -182,7 +184,7 @@ const Dashboard = () => {
           {/* Logout */}
           <button
             onClick={() => setShowLogoutConfirm(true)}
-            className="w-full px-3 py-2 text-sm bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg text-left transition"
+            className="w-full px-3 py-2 text-sm bg-red-600/20 hover:bg-red-600/30 rounded-lg text-left transition cursor-pointer text-white font-medium"
           >
             Logout
           </button>

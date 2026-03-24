@@ -6,15 +6,17 @@ import { useSelector } from "react-redux";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const user = useSelector((state) => state.auth.user);
   const loading = useSelector((state) => state.auth.loading);
 
   const { handleLogin } = useAuth();
 
-
   const submitForm = async (event) => {
     event.preventDefault();
+
+    setError("");
 
     const payload = {
       email,
@@ -23,8 +25,10 @@ const Login = () => {
 
     try {
       await handleLogin(payload);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
+
+      setError(err.response?.data?.message || "Invalid email or password");
     }
   };
 
@@ -40,6 +44,12 @@ const Login = () => {
           <p className="mt-2 text-sm text-zinc-300">
             Sign in with your email and password.
           </p>
+
+          {error && (
+            <div className="mb-4 text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={submitForm} className="mt-8 space-y-5">
             <div>

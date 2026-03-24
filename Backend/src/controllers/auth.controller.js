@@ -49,7 +49,7 @@ export async function register(req, res) {
     success: true,
     user: {
       id: user._id,
-      username: user.username,
+      name: user.username,
       email: user.email,
     },
   });
@@ -115,7 +115,11 @@ export async function getMe(req, res) {
   res.status(200).json({
     message: "User details fetched successfully",
     success: true,
-    user,
+    user: {
+      id: user._id,
+      name: user.username,
+      email: user.email,
+    },
   });
 }
 
@@ -168,7 +172,7 @@ export async function logout(req, res) {
     res.clearCookie("token", {
       httpOnly: true,
       sameSite: "lax",
-      secure: false, 
+      secure: false,
     });
 
     return res.status(200).json({
