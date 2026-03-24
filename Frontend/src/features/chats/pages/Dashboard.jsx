@@ -50,20 +50,22 @@ const Dashboard = () => {
         </div>
 
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {Object.values(chats).map((chatItem) => (
-            <button
-              key={chatItem.id}
-              onClick={() => openChat(chatItem.id)}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all cursor-pointer
+          {Object.values(chats)
+            .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated))
+            .map((chatItem) => (
+              <button
+                key={chatItem.id}
+                onClick={() => openChat(chatItem.id)}
+                className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all cursor-pointer
 ${
   currentChatId === chatItem.id
     ? "bg-neutral-800 border border-neutral-600 text-white"
     : "text-gray-400 hover:text-white hover:bg-neutral-800/50"
 }`}
-            >
-              <span className="block truncate">{chatItem.title}</span>
-            </button>
-          ))}
+              >
+                <span className="block truncate">{chatItem.title}</span>
+              </button>
+            ))}
         </nav>
 
         <div className="p-3 border-t border-gray-800/50">
@@ -139,6 +141,9 @@ ${
             <div ref={messagesEndRef} />
           </div>
 
+          {isLoading && (
+            <div className="text-gray-400 text-sm px-2">AI is thinking...</div>
+          )}
           {/* Input */}
           <div className="mt-4">
             <form onSubmit={handleSendMessage} className="relative">
