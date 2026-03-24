@@ -21,6 +21,8 @@ const Dashboard = () => {
   const chats = useSelector((state) => state.chat.chats);
   const currentChatId = useSelector((state) => state.chat.currentChatId);
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
   useEffect(() => {
     chat.initializeSocketConnection();
     chat.handleGetChats();
@@ -56,6 +58,13 @@ const Dashboard = () => {
     setInput("");
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("currentChatId");
+
+    window.location.href = "/login";
+  };
+
   const openChat = (chatId) => {
     setIsNewMessage(false);
     chat.handleOpenChat(chatId, chats);
@@ -65,12 +74,14 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen w-full bg-[#0a0a0a] text-white flex-col md:flex-row relative">
       {/* Sidebar */}
+
       <aside
-        className={`fixed md:static top-0 left-0 h-full z-50 w-64 bg-[#0d0d0d] border-r border-gray-800/50 transform transition-transform duration-300
+        className={`fixed md:static top-0 left-0 h-full z-50 w-64 bg-[#0d0d0d] border-r border-gray-800/50 transform transition-transform duration-300 flex flex-col
   ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
   md:translate-x-0`}
       >
-        <div className="md:hidden p-3 flex justify-end absolute right-0 top-1.5">
+        {/* Close Button sidebar */}
+        <div className="md:hidden p-3 flex justify-end absolute right-0 top-1.5 z-10">
           <button
             onClick={() => setIsSidebarOpen(false)}
             className="text-white text-lg font-extrabold"
@@ -78,10 +89,14 @@ const Dashboard = () => {
             ✕
           </button>
         </div>
+
         <div className="p-4 border-b border-gray-800/50">
-          <h1 className="text-lg font-semibold text-white/90">Perplexity</h1>
+          <h1 className="text-lg font-semibold text-white/90 font-serif">
+            Neurovia
+          </h1>
         </div>
 
+        {/* Chat List History*/}
         <nav className="flex-1 overflow-y-auto py-6 space-y-1 relative">
           {Object.values(chats)
             .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated))
@@ -91,12 +106,13 @@ const Dashboard = () => {
                 onMouseEnter={() => setHoveredChatId(chatItem.id)}
                 onMouseLeave={() => setHoveredChatId(null)}
                 className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm cursor-pointer group
-  ${
-    currentChatId === chatItem.id
-      ? "bg-neutral-800 border border-neutral-600 text-white"
-      : "text-gray-400 hover:text-white hover:bg-neutral-800/50"
-  }`}
+          ${
+            currentChatId === chatItem.id
+              ? "bg-neutral-800 border border-neutral-600 text-white"
+              : "text-gray-400 hover:text-white hover:bg-neutral-800/50"
+          }`}
               >
+                {/* Recent Chat Title */}
                 <div
                   onClick={() => openChat(chatItem.id)}
                   className="flex-1 truncate"
@@ -104,9 +120,9 @@ const Dashboard = () => {
                   {chatItem.title}
                 </div>
 
-                {/* Three Dots for delete chat history */}
                 <div className="relative">
-                  {hoveredChatId === chatItem.id && (
+                  {(hoveredChatId === chatItem.id ||
+                    openMenuChatId === chatItem.id) && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -114,18 +130,17 @@ const Dashboard = () => {
                           openMenuChatId === chatItem.id ? null : chatItem.id,
                         );
                       }}
-                      className="px-2 text-gray-100 hover:text-white text-md font-extrabold cursor-pointer"
+                      className="px-2 text-gray-100 hover:text-white text-md font-extrabold"
                     >
                       ⋮
                     </button>
                   )}
 
-                  {/* delete button display */}
-
+                  {/* Delete Funtionality */}
                   {openMenuChatId === chatItem.id && (
                     <div
                       onClick={(e) => e.stopPropagation()}
-                      className="absolute right-0 bottom-full mb-1 w-28 bg-neutral-900 border border-gray-700 rounded-lg shadow-lg z-999"
+                      className="absolute right-0 bottom-full mb-1 w-28 bg-neutral-900 border border-gray-700 rounded-lg shadow-lg z-50"
                     >
                       <button
                         onClick={() => {
@@ -143,26 +158,52 @@ const Dashboard = () => {
             ))}
         </nav>
 
-        <div className="p-3 border-t border-gray-800/50">
+        {/* Bottom Section */}
+        <div className="p-3 border-t border-gray-800/50 space-y-3">
+          {/* New Chat */}
           <button
             onClick={chat.handleNewChat}
             className="w-full px-4 py-2.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-sm cursor-pointer"
           >
             + New Chat
           </button>
+
+          {/* Logged In User  */}
+          <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-800 transition">
+            <div className="w-9 h-9 rounded-full bg-neutral-700 flex items-center justify-center text-sm font-semibold">
+              {user?.name?.[0] || "U"}
+            </div>
+
+            <div className="flex flex-col overflow-hidden">
+              <span className="text-sm text-white truncate">
+                {user?.name || "User"}
+              </span>
+              <span className="text-xs text-gray-400 truncate">
+                {user?.email || "user@email.com"}
+              </span>
+            </div>
+          </div>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="w-full px-3 py-2 text-sm bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg text-left transition"
+          >
+            Logout
+          </button>
         </div>
       </aside>
 
-      {/* button menu */}
       <div className="md:hidden p-3 flex items-center justify-between">
         <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-2xl">
           ☰
         </button>
 
-        <span className="text-gray-200 text-md">Perplexity</span>
+        <span className="text-gray-200 text-md">Neurovia AI</span>
       </div>
 
       {/* Main */}
+
       <main className="flex-1 flex flex-col min-w-0 overflow-auto">
         <div className="flex-1 flex flex-col p-3 md:p-4 overflow-hidden">
           {/* Messages */}
@@ -219,7 +260,7 @@ const Dashboard = () => {
               ))
             ) : (
               <div className="flex items-center justify-center h-full text-shadow-white text-4xl text-center px-4 mask-radial-from-neutral-800">
-                Welcome To Perplexity AI 🤖
+                Welcome To Neurovia AI 🤖
               </div>
             )}
             <div ref={messagesEndRef} />
@@ -229,7 +270,6 @@ const Dashboard = () => {
           {isLoading && (
             <div className="flex justify-start">
               <div className="px-4 py-3 rounded-2xl bg-neutral-800 text-gray-400 text-sm flex items-center gap-2">
-                {/* dots animation */}
                 <span className="flex gap-1">
                   <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
                   <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce delay-150"></span>
@@ -239,7 +279,7 @@ const Dashboard = () => {
             </div>
           )}
 
-          {/* Input */}
+          {/* User Input Section */}
           <div className="mt-4">
             <form onSubmit={handleSendMessage} className="relative">
               <div className="rounded-xl border border-gray-700 bg-neutral-900/50 overflow-hidden">
