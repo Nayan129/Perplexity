@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, Navigate } from "react-router";
 import { useAuth } from "../hooks/useAuth.js";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,6 +13,7 @@ const Login = () => {
   const loading = useSelector((state) => state.auth.loading);
 
   const { handleLogin } = useAuth();
+  const location = useLocation();
 
   const submitForm = async (event) => {
     event.preventDefault();
@@ -41,6 +43,11 @@ const Login = () => {
       <div className="mx-auto flex min-h-[85vh] w-full max-w-5xl items-center justify-center">
         <div className="w-full max-w-md rounded-2xl border border-[#31b8c6]/40 bg-zinc-900/70 p-8 shadow-2xl shadow-black/50 backdrop-blur">
           <h1 className="text-3xl font-bold text-[#31b8c6]">Welcome Back</h1>
+          {location.state?.message && (
+            <div className="mb-4 text-sm text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-2 rounded-lg">
+              {location.state.message}
+            </div>
+          )}
           <p className="mt-2 text-sm text-zinc-300">
             Sign in with your email and password.
           </p>
@@ -96,9 +103,10 @@ const Login = () => {
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-[#31b8c6] px-4 py-3 font-semibold text-zinc-950 transition hover:bg-[#45c7d4] focus:outline-none focus:shadow-[0_0_0_3px_rgba(49,184,198,0.35)]"
+              disabled={loading}
+              className="w-full rounded-lg bg-[#31b8c6] px-4 py-3 font-semibold text-zinc-950 transition hover:bg-[#45c7d4] disabled:opacity-50"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 

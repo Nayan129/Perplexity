@@ -7,23 +7,35 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const { handleRegister } = useAuth();
 
   const navigate = useNavigate();
 
+  // function to submit form
   const submitForm = async (event) => {
     event.preventDefault();
 
-    const payload = {
-      username,
-      email,
-      password,
-    };
+    setLoading(true);
+    setError("");
 
-    await handleRegister(payload);
-    alert("registered successfully..✅");
-    navigate("/login");
+    const payload = { username, email, password };
 
+    try {
+      await handleRegister(payload);
+
+      navigate("/login", {
+        state: {
+          message: "Registered successfully! Please verify your email.",
+        },
+      });
+    } catch (err) {
+      setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,6 +46,12 @@ const Register = () => {
           <p className="mt-2 text-sm text-zinc-300">
             Register with your username, email, and password.
           </p>
+
+          {error && (
+            <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={submitForm} className="mt-8 space-y-5">
             <div>
@@ -92,9 +110,10 @@ const Register = () => {
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-[#31b8c6] px-4 py-3 font-semibold text-zinc-950 transition hover:bg-[#45c7d4] focus:outline-none focus:shadow-[0_0_0_3px_rgba(49,184,198,0.35)]"
+              disabled={loading}
+              className="w-full rounded-lg bg-[#31b8c6] px-4 py-3 font-semibold text-zinc-950 transition hover:bg-[#45c7d4] disabled:opacity-50"
             >
-              Register
+              {loading ? "Registering..." : "Register"}
             </button>
           </form>
 
