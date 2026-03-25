@@ -8,6 +8,7 @@ export function initSocket(httpServer) {
       origin: process.env.CLIENT_URL,
       credentials: true,
     },
+    transports: ["websocket"],
   });
 
   console.log("socket.io is running");
@@ -19,7 +20,7 @@ export function initSocket(httpServer) {
 
 export function getIo() {
   if (!io) {
-    throw new error("socket.io not initialized");
+    throw new Error("socket.io not initialized");
   }
   return io;
 }
