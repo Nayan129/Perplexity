@@ -30,18 +30,23 @@ export async function register(req, res) {
     process.env.JWT_SECRET,
   );
 
-  await sendEmail({
+  sendEmail({
     to: email,
     subject: "Welcome to Perplexity!",
     html: `
-                <p>Hi ${username},</p>
-                <p>Thank you for registering at <strong>Perplexity</strong>. We're excited to have you on board!</p>
-                <p>Please verify your email address by clicking the link below:</p>
-                <a href="${process.env.BASE_URL}/api/auth/verify-email?token=${emailVerificationToken}">Verify Email</a>
-                <p>If you did not create an account, please ignore this email.</p>
-                <p>Best regards,<br>The Perplexity Team</p>
-        `,
-  });
+    <p>Hi ${username},</p>
+    <p>Please verify your email:</p>
+    <a href="${process.env.BASE_URL}/api/auth/verify-email?token=${emailVerificationToken}">
+      Verify Email
+    </a>
+  `,
+  })
+    .then(() => {
+      console.log("Email sent");
+    })
+    .catch((err) => {
+      console.log("Email error:", err);
+    });
 
   res.status(201).json({
     message: "User registered successfully",
