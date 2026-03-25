@@ -71,6 +71,12 @@ export async function login(req, res) {
       });
     }
 
+    if (!user.verified) {
+      return res.status(403).json({
+        message: "Please verify your email before logging in",
+      });
+    }
+
     const isPasswordMatch = await user.comparePassword(password);
 
     if (!isPasswordMatch) {
@@ -89,7 +95,6 @@ export async function login(req, res) {
 
     res.json({ success: true });
   } catch (err) {
-    console.log(err);
     res.status(500).json({ error: err.message });
   }
 }

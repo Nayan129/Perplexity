@@ -46,8 +46,14 @@ const Login = () => {
           </p>
 
           {error && (
-            <div className="mb-4 text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">
+            <div className="mb-4 text-sm text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-3 py-2 rounded-lg">
               {error}
+
+              {error.includes("verify") && (
+                <p className="mt-2 text-xs text-gray-400">
+                  Check your email for the verification link.
+                </p>
+              )}
             </div>
           )}
 
