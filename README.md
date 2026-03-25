@@ -120,20 +120,24 @@ BASE_URL=https://your-backend-url
 ```bash
 git clone https://github.com/your-username/neurovia-ai.git
 cd neurovia-ai
+
 2️⃣ Backend Setup
 cd Backend
 npm install
 npm run dev
+
 3️⃣ Frontend Setup
 cd Frontend
 npm install
 npm run dev
+
 🔐 Authentication Flow
 User registers
 Verification email is sent
 User clicks verification link
 Account is activated (verified = true)
 Login allowed
+
 📡 API Endpoints
 Auth Routes
 POST /api/auth/register
@@ -146,10 +150,12 @@ GET /api/chats
 POST /api/chats/message
 GET /api/chats/:id/messages
 DELETE /api/chats/delete/:id
+
 🚀 Deployment
 Frontend: Vercel
 Backend: Render
 Database: MongoDB Atlas
+
 🧠 Key Highlights
 Production-ready authentication system
 Secure cookie-based auth with CORS handling
@@ -157,12 +163,15 @@ Email verification with fallback handling
 Real-time communication using WebSockets
 Scalable backend architecture
 Clean and maintainable code structure
+
 📌 Future Improvements
 Resend verification email feature
 OTP-based verification system
 Chat streaming (real-time AI responses)
 User profile & settings
 Rate limiting & security enhancements
+
+
 👨‍💻 Author
 
 Nayan Bhusari
