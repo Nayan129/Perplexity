@@ -16,9 +16,8 @@ export async function register(req, res) {
 
   if (isUserAlreadyExists) {
     return res.status(400).json({
-      message: "User with this email or username already exists",
+      message: "User already exists",
       success: false,
-      err: "User already exists",
     });
   }
 
@@ -38,7 +37,7 @@ export async function register(req, res) {
                 <p>Hi ${username},</p>
                 <p>Thank you for registering at <strong>Perplexity</strong>. We're excited to have you on board!</p>
                 <p>Please verify your email address by clicking the link below:</p>
-                <a href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}">Verify Email</a>
+                <a href="${process.env.BASE_URL}/api/auth/verify-email?token=${emailVerificationToken}">Verify Email</a>
                 <p>If you did not create an account, please ignore this email.</p>
                 <p>Best regards,<br>The Perplexity Team</p>
         `,
@@ -178,7 +177,6 @@ export async function verifyEmail(req, res) {
  */
 export async function logout(req, res) {
   try {
-
     res.clearCookie("token", {
       httpOnly: true,
       secure: true,
@@ -189,7 +187,6 @@ export async function logout(req, res) {
       message: "Logged out successfully",
       success: true,
     });
-    
   } catch (err) {
     return res.status(500).json({
       message: "Logout failed",
