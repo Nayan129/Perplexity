@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "https://neurovia-ai-evzk.onrender.com",
   withCredentials: true,
 });
 
@@ -16,7 +16,7 @@ export const sendMessage = async (message, chatId) => {
 
 
 export const getChats = async () => {
-  const response = await api.get("/api/chats/");
+  const response = await api.get("/api/chats");
   return response.data;
 };
 
