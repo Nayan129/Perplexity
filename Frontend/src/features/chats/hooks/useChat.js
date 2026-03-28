@@ -20,11 +20,11 @@ import { useSelector } from "react-redux";
 
 export const useChat = () => {
   const dispatch = useDispatch();
-
   const currentChatId = useSelector((state) => state.chat.currentChatId);
 
-  // message sending handler
   async function handleSendMessage({ message, chatId }) {
+    if (!message.trim()) return;
+
     try {
       dispatch(setLoading(true));
 
@@ -32,6 +32,9 @@ export const useChat = () => {
 
       const { chat, aiMessage } = data;
 
+      const finalChatId = chatId || chat._id;
+
+      //  new chat create
       if (!chatId) {
         dispatch(
           createNewChat({
@@ -41,35 +44,40 @@ export const useChat = () => {
         );
       }
 
+      //  set current chat
+      dispatch(setCurrentChatId(finalChatId));
+
+      //  add user message
       dispatch(
         addNewMessage({
-          chatId: chatId || chat._id,
+          chatId: finalChatId,
           content: message,
           role: "user",
         }),
       );
 
+      //  add AI message
       dispatch(
         addNewMessage({
-          chatId: chatId || chat._id,
+          chatId: finalChatId,
           content: aiMessage.content,
           role: aiMessage.role,
         }),
       );
-
-      dispatch(setCurrentChatId(chat._id));
     } catch (err) {
+      console.log(err);
       dispatch(setError("Something went wrong"));
     } finally {
       dispatch(setLoading(false));
     }
   }
 
-  // to get chat that we created before
   async function handleGetChats() {
     dispatch(setLoading(true));
+
     const data = await getChats();
     const { chats } = data;
+
     dispatch(
       setChats(
         chats.reduce((acc, chat) => {
@@ -83,10 +91,10 @@ export const useChat = () => {
         }, {}),
       ),
     );
+
     dispatch(setLoading(false));
   }
 
-  // to open old chat
   async function handleOpenChat(chatId, chats) {
     if (chats[chatId]?.messages.length === 0) {
       const data = await getMessages(chatId);
@@ -106,10 +114,10 @@ export const useChat = () => {
         }),
       );
     }
+
     dispatch(setCurrentChatId(chatId));
   }
 
-  // create new chat
   function handleNewChat() {
     dispatch(setCurrentChatId(null));
     localStorage.removeItem("currentChatId");
@@ -120,7 +128,6 @@ export const useChat = () => {
 
     dispatch(removeChat(chatId));
 
-    // agar current chat delete hua
     if (currentChatId === chatId) {
       dispatch(setCurrentChatId(null));
     }
