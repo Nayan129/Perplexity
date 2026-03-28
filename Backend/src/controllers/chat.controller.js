@@ -76,9 +76,8 @@ export async function getMessages(req, res) {
   // load only 10 messages on first render
   const messages = await messageModel
     .find({ chat: chatId })
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: 1 })
     .limit(10);
-
 
   res.status(200).json({
     message: "Messages retrieved successfully",
